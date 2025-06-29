@@ -192,9 +192,9 @@
 
     <!-- Firebase SDK -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
         // --- CONFIGURATION ---
         const PASTEBIN_URL = 'https://corsproxy.io/?' + encodeURIComponent('https://pastebin.com/raw/iufMNw3v');
@@ -258,10 +258,18 @@
         let isAdmin = false;
 
         // --- FIREBASE SETUP ---
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "DEMO_KEY", authDomain: "DEMO.firebaseapp.com", projectId: "DEMO_PROJECT" };
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB-gVscIlZwTEVG5if-1vZ3pvje2Pbrue4",
+            authDomain: "diario-4ac24.firebaseapp.com",
+            projectId: "diario-4ac24",
+            storageBucket: "diario-4ac24.appspot.com",
+            messagingSenderId: "193262163165",
+            appId: "1:193262163165:web:8177fd86a89d025ce13734"
+        };
         
         try {
+            // Initialize Firebase
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
@@ -387,14 +395,15 @@
         };
         
         const setupListeners = () => {
-             const publicActivitiesPath = `/artifacts/${appId}/public/data/${FIREBASE_COLLECTION_ACTIVITIES}`;
+             // We no longer need the __app_id for this public-only app structure
+             const publicActivitiesPath = `public_activities`;
              onSnapshot(query(collection(db, publicActivitiesPath)), (snapshot) => {
                 const activities = [];
                 snapshot.forEach((doc) => activities.push({ id: doc.id, ...doc.data() }));
                 renderActivities(activities);
              }, (error) => console.error("Error listening to activities:", error));
             
-             const scheduleDocPath = `/artifacts/${appId}/public/data/${FIREBASE_COLLECTION_SCHEDULE}/${SCHEDULE_DOC_ID}`;
+             const scheduleDocPath = `public_schedule/${SCHEDULE_DOC_ID}`;
              onSnapshot(doc(db, scheduleDocPath), (docSnap) => {
                  renderSchedule(docSnap.exists() ? docSnap.data() : null);
              }, (error) => console.error("Error listening to schedule:", error));
@@ -470,7 +479,7 @@
                 postError.classList.remove('hidden'); return;
             }
             try {
-                 const publicActivitiesPath = `/artifacts/${appId}/public/data/${FIREBASE_COLLECTION_ACTIVITIES}`;
+                 const publicActivitiesPath = `public_activities`;
                  await addDoc(collection(db, publicActivitiesPath), newActivity);
                  newPostForm.reset();
                  pointsContainer.classList.add('hidden');
@@ -491,7 +500,7 @@
 
         // Edit Schedule Modal
         editScheduleButton.addEventListener('click', async () => {
-            const scheduleDocPath = `/artifacts/${appId}/public/data/${FIREBASE_COLLECTION_SCHEDULE}/${SCHEDULE_DOC_ID}`;
+            const scheduleDocPath = `public_schedule/${SCHEDULE_DOC_ID}`;
             const docRef = doc(db, scheduleDocPath);
             const docSnap = await getDoc(docRef);
             if (docSnap.exists()) {
@@ -513,7 +522,7 @@
                 sexta: scheduleInputs.sexta.value.trim(),
             };
             try {
-                const scheduleDocPath = `/artifacts/${appId}/public/data/${FIREBASE_COLLECTION_SCHEDULE}/${SCHEDULE_DOC_ID}`;
+                const scheduleDocPath = `public_schedule/${SCHEDULE_DOC_ID}`;
                 await setDoc(doc(db, scheduleDocPath), scheduleData);
                 editScheduleModal.classList.add('hidden');
                 showMessage('Horário salvo com sucesso!');
