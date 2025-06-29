@@ -30,7 +30,7 @@
             from { transform: translateY(30px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-        /* Hide admin-only buttons by default */
+        /* This class will now be dynamically controlled by JS */
         .admin-only { display: none; }
     </style>
 </head>
@@ -97,8 +97,8 @@
                 </div>
             </main>
 
-            <!-- Admin Floating Action Button for New Post -->
-            <button id="admin-fab" class="admin-only absolute bottom-6 right-6 bg-indigo-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-700 transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <!-- Floating Action Button: Always visible to attempt admin login -->
+            <button id="admin-fab" class="absolute bottom-6 right-6 bg-indigo-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-700 transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
             </button>
         </div>
@@ -287,7 +287,13 @@
             } else {
                 signInAnonymously(auth).catch(error => {
                     console.error("Anonymous sign-in failed:", error);
-                    showMessage("Falha na autenticação. Verifique sua conexão.");
+                    // FIX: Add detailed error handling to guide the user.
+                    if (error.code === 'auth/configuration-not-found') {
+                        console.warn('%cFIX: Please go to your Firebase Console -> Authentication -> Sign-in method -> and enable the "Anonymous" provider.', 'color: orange; font-weight: bold;');
+                        showMessage("Erro de Configuração: O administrador do site precisa habilitar o 'login anônimo' no painel do Firebase para que a autenticação funcione corretamente.");
+                    } else {
+                        showMessage("Falha na autenticação. Verifique sua conexão.");
+                    }
                 });
             }
         });
@@ -303,11 +309,13 @@
             isAdmin = show;
             document.querySelectorAll('.admin-only').forEach(el => {
                 if(show) {
-                    el.style.display = 'flex'; // Or 'block', 'inline-flex' etc.
+                    el.style.display = 'flex';
                 } else {
                     el.style.display = 'none';
                 }
             });
+            // Show or hide the main FAB based on admin status
+            adminFab.style.display = isAdmin ? 'flex' : 'none';
         };
 
         const fetchAdmins = async () => {
@@ -395,7 +403,6 @@
         };
         
         const setupListeners = () => {
-             // We no longer need the __app_id for this public-only app structure
              const publicActivitiesPath = `public_activities`;
              onSnapshot(query(collection(db, publicActivitiesPath)), (snapshot) => {
                 const activities = [];
@@ -428,17 +435,28 @@
                 const isAtividades = tab === tabAtividades;
                 tabAtividades.classList.toggle('border-indigo-500', isAtividades);
                 tabAtividades.classList.toggle('text-indigo-600', isAtividades);
+                tabAtividades.classList.toggle('dark:text-indigo-400', isAtividades);
+                tabAtividades.classList.toggle('text-gray-500', !isAtividades);
+                
                 tabHorario.classList.toggle('border-indigo-500', !isAtividades);
                 tabHorario.classList.toggle('text-indigo-600', !isAtividades);
+                tabHorario.classList.toggle('dark:text-indigo-400', !isAtividades);
+                tabHorario.classList.toggle('text-gray-500', isAtividades);
+
                 atividadesSection.classList.toggle('hidden', !isAtividades);
                 horarioSection.classList.toggle('hidden', isAtividades);
             });
         });
-
-        // Admin FAB for new post
+        
+        // FIX: The floating button is now always visible and its behavior is controlled by code.
         adminFab.addEventListener('click', () => {
-            newPostModal.classList.remove('hidden');
-            document.getElementById('post-title').focus();
+            if(isAdmin) {
+                newPostModal.classList.remove('hidden');
+                document.getElementById('post-title').focus();
+            } else {
+                adminLoginModal.classList.remove('hidden');
+                adminNameInput.focus();
+            }
         });
 
         // Admin Login
@@ -544,16 +562,13 @@
             }
             // By default user is not an admin, so features are hidden
             toggleAdminFeatures(false);
-            // Floating button is now an admin feature
-            adminFab.onclick = () => {
-                if(isAdmin) {
-                    newPostModal.classList.remove('hidden');
-                    document.getElementById('post-title').focus();
-                } else {
-                    adminLoginModal.classList.remove('hidden');
-                    adminNameInput.focus();
-                }
-            };
+            
+            // Re-hide the main FAB and only show it for admins.
+            // The button to initiate login is now the gear icon on the main screen.
+            // Let's create a dedicated login button.
+            // For now, let's just make the FAB always visible to trigger login.
+            const mainFab = document.getElementById('admin-fab');
+            mainFab.style.display = 'flex';
         };
 
         checkLogin();
