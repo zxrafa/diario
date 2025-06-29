@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diário Escolar com IA</title>
     
-    <!-- Tailwind CSS for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Lucide Icons -->
     <script src="https://cdn.jsdelivr.net/npm/lucide-static@latest/umd/lucide.js"></script>
     
     <style>
@@ -50,7 +47,6 @@
 
     <div id="app-container" class="max-w-md mx-auto h-screen bg-white dark:bg-gray-800 flex flex-col shadow-2xl">
 
-        <!-- ===== Login Screen ===== -->
         <div id="login-screen" class="flex flex-col items-center justify-center h-full p-8">
             <h1 class="text-3xl font-bold text-indigo-600 dark:text-indigo-400 mb-2">Diário Escolar IA</h1>
             <p class="text-gray-500 dark:text-gray-400 mb-8">Digite seu nome para continuar</p>
@@ -62,9 +58,7 @@
             </div>
         </div>
 
-        <!-- ===== Main App Screen (Hidden by default) ===== -->
         <div id="main-app" class="hidden flex-1 flex flex-col">
-            <!-- Header -->
             <header class="p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-10">
                 <div class="flex justify-between items-center">
                     <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100">
@@ -74,7 +68,6 @@
                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
                     </button>
                 </div>
-                <!-- Navigation Tabs -->
                 <nav class="mt-4">
                     <div class="flex border-b border-gray-200 dark:border-gray-600">
                         <button id="tab-atividades" class="tab-button flex-1 py-2 text-sm font-medium text-center text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-500">
@@ -87,16 +80,12 @@
                 </nav>
             </header>
 
-            <!-- Content Area -->
             <main class="flex-1 overflow-y-auto p-4 bg-gray-50 dark:bg-gray-900/50">
-                <!-- Activities Section -->
                 <div id="atividades-section">
                     <div id="activities-list" class="space-y-4">
-                        <!-- Activity cards will be inserted here -->
-                    </div>
+                        </div>
                 </div>
                 
-                <!-- Schedule Section -->
                 <div id="horario-section" class="hidden">
                     <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
                          <div class="flex justify-between items-center mb-4">
@@ -107,21 +96,17 @@
                              </button>
                          </div>
                          <div id="schedule-display" class="space-y-3 text-sm">
-                            <!-- Schedule content will be dynamically inserted here -->
-                         </div>
+                            </div>
                     </div>
                 </div>
             </main>
 
-            <!-- Floating Action Button: Always visible to attempt admin login -->
             <button id="admin-fab" class="absolute bottom-6 right-6 bg-indigo-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-700 transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
             </button>
         </div>
     </div>
     
-    <!-- Modals -->
-    <!-- Admin Login Modal -->
     <div id="admin-login-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-20">
         <div class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm">
             <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">Login de Administrador</h2>
@@ -135,7 +120,6 @@
         </div>
     </div>
 
-    <!-- New Post Modal -->
     <div id="new-post-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-30">
         <form id="new-post-form" class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm space-y-4">
             <div class="flex justify-between items-center">
@@ -143,6 +127,7 @@
                 <button type="button" id="cancel-new-post" class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">&times;</button>
             </div>
             <input type="text" id="post-title" placeholder="Título da atividade/trabalho" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
+            <textarea id="post-description" placeholder="Descrição (opcional)..." rows="3" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
             <input type="text" id="post-subject" placeholder="Matéria" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
             <div>
                 <label class="text-sm text-gray-600 dark:text-gray-300">Data de Entrega</label>
@@ -168,7 +153,6 @@
         </form>
     </div>
 
-    <!-- Edit Schedule Modal -->
     <div id="edit-schedule-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-30">
         <form id="edit-schedule-form" class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm space-y-3">
             <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2">Editar Horário</h2>
@@ -184,7 +168,6 @@
         </form>
     </div>
     
-    <!-- Gemini AI Tips Modal -->
     <div id="ai-tips-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-40">
         <div class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
@@ -192,12 +175,10 @@
                 <button id="close-ai-tips-modal" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">&times;</button>
             </div>
             <div id="ai-tips-content" class="text-gray-700 dark:text-gray-300 space-y-2 prose max-h-96 overflow-y-auto">
-                <!-- AI content or loader will be here -->
-            </div>
+                </div>
         </div>
     </div>
 
-    <!-- Custom Alert/Message Modal -->
     <div id="message-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
         <div class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm text-center">
             <p id="message-text" class="text-gray-800 dark:text-gray-200 mb-4"></p>
@@ -206,7 +187,6 @@
     </div>
 
 
-    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
@@ -322,10 +302,8 @@
             });
             const fabIcon = adminFab.querySelector('svg');
             if (show) {
-                // Change FAB icon to "add" when admin is logged in
                 fabIcon.innerHTML = `<path d="M5 12h14"/><path d="M12 5v14"/>`; // Plus icon
             } else {
-                // Change FAB icon to "login" when not admin
                 fabIcon.innerHTML = `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/>`; // Shield icon
             }
         };
@@ -358,7 +336,6 @@
 
             sortedActivities.forEach(activity => {
                 const dueDate = new Date(activity.dueDate);
-                // Fix for timezone issues where UTC date is one day behind
                 dueDate.setMinutes(dueDate.getMinutes() + dueDate.getTimezoneOffset());
                 const formattedDate = dueDate.toLocaleDateString('pt-BR');
 
@@ -367,6 +344,9 @@
                 let typeBadgeColor = 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
                 if (activity.type === 'Trabalho') typeBadgeColor = 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
                 if (activity.type === 'Prova') typeBadgeColor = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+                
+                // NEW: Add description HTML if it exists
+                const descriptionHtml = activity.description ? `<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">${activity.description.replace(/\n/g, '<br>')}</p>` : '';
 
                 const card = `
                     <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow transition-all hover:shadow-md">
@@ -380,6 +360,7 @@
                             </div>
                         </div>
                         <p class="text-sm text-indigo-500 dark:text-indigo-400 font-medium mt-1">${activity.subject}</p>
+                        ${descriptionHtml}
                         <div class="flex justify-between items-center mt-4 text-sm">
                             <p class="text-gray-600 dark:text-gray-300"><span class="font-semibold">Entrega:</span> ${formattedDate}</p>
                             <p class="text-gray-600 dark:text-gray-300">${pointsText}</p>
@@ -397,6 +378,29 @@
             toggleAdminFeatures(isAdmin);
         };
         
+        const renderSchedule = (scheduleData) => {
+            scheduleDisplay.innerHTML = '';
+            const days = { segunda: 'Segunda', terca: 'Terça', quarta: 'Quarta', quinta: 'Quinta', sexta: 'Sexta' };
+            let contentAdded = false;
+
+            for (const [key, dayName] of Object.entries(days)) {
+                const subjects = scheduleData?.[key] || '';
+                if(subjects){
+                    const dayHtml = `
+                    <div class="grid grid-cols-4 gap-2 items-center">
+                        <strong class="font-semibold text-gray-700 dark:text-gray-300 col-span-1">${dayName}:</strong>
+                        <span class="text-gray-600 dark:text-gray-400 col-span-3">${subjects}</span>
+                    </div>`;
+                    scheduleDisplay.innerHTML += dayHtml;
+                    contentAdded = true;
+                }
+            }
+
+            if(!contentAdded) {
+                scheduleDisplay.innerHTML = `<div class="text-center text-gray-500 dark:text-gray-400 py-10">O horário ainda não foi definido.</div>`;
+            }
+        };
+
         const checkDueDates = (activities) => {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
@@ -462,7 +466,7 @@
             
              const scheduleDocPath = `public_schedule/${SCHEDULE_DOC_ID}`;
              onSnapshot(doc(db, scheduleDocPath), (docSnap) => {
-                 // Logic to render schedule
+                renderSchedule(docSnap.exists() ? docSnap.data() : null);
              }, (error) => console.error("Error listening to schedule:", error));
         };
 
@@ -486,6 +490,24 @@
             mainApp.classList.add('hidden');
             loginScreen.classList.remove('hidden');
             nameInput.value = '';
+        });
+
+        // FIX: Added event listener for tab navigation
+        [tabAtividades, tabHorario].forEach(tab => {
+            tab.addEventListener('click', () => {
+                const isAtividades = tab === tabAtividades;
+
+                tabAtividades.classList.toggle('border-indigo-500', isAtividades);
+                tabAtividades.classList.toggle('text-gray-500', !isAtividades);
+                tabAtividades.classList.toggle('text-indigo-600', isAtividades);
+                
+                tabHorario.classList.toggle('border-indigo-500', !isAtividades);
+                tabHorario.classList.toggle('text-gray-500', isAtividades);
+                tabHorario.classList.toggle('text-indigo-600', !isAtividades);
+
+                atividadesSection.classList.toggle('hidden', !isAtividades);
+                horarioSection.classList.toggle('hidden', isAtividades);
+            });
         });
 
         activitiesList.addEventListener('click', async (e) => {
@@ -516,13 +538,14 @@
         
         adminFab.addEventListener('click', () => {
             if (isAdmin) {
+                newPostForm.reset();
+                pointsContainer.classList.add('hidden');
                 newPostModal.classList.remove('hidden');
             } else {
                 adminLoginModal.classList.remove('hidden');
             }
         });
         
-        // FIX: Added missing event listeners
         confirmAdminLogin.addEventListener('click', async () => {
             const name = adminNameInput.value.trim();
             const password = adminPasswordInput.value.trim();
@@ -550,17 +573,24 @@
         });
 
         cancelNewPost.addEventListener('click', () => {
+            newPostForm.reset();
+            pointsContainer.classList.add('hidden');
             newPostModal.classList.add('hidden');
         });
         
         cancelEditSchedule.addEventListener('click', () => {
             editScheduleModal.classList.add('hidden');
         });
+        
+        messageOkButton.addEventListener('click', () => {
+            messageModal.classList.add('hidden');
+        });
 
         newPostForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const newActivity = {
                 title: document.getElementById('post-title').value.trim(),
+                description: document.getElementById('post-description').value.trim(),
                 subject: document.getElementById('post-subject').value.trim(),
                 dueDate: document.getElementById('post-duedate').value,
                 type: document.getElementById('post-type').value,
@@ -585,11 +615,42 @@
             }
         });
         
+        editScheduleButton.addEventListener('click', async () => {
+            const scheduleDocPath = `public_schedule/${SCHEDULE_DOC_ID}`;
+            const docRef = doc(db, scheduleDocPath);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                for(const day in scheduleInputs){
+                    if(scheduleInputs[day]) {
+                        scheduleInputs[day].value = data[day] || '';
+                    }
+                }
+            }
+            editScheduleModal.classList.remove('hidden');
+        });
+
         editScheduleForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            // Logic to save schedule...
+            const scheduleData = {};
+            for(const day in scheduleInputs) {
+                scheduleData[day] = scheduleInputs[day].value.trim();
+            }
+            try {
+                const scheduleDocPath = `public_schedule/${SCHEDULE_DOC_ID}`;
+                await setDoc(doc(db, scheduleDocPath), scheduleData);
+                editScheduleModal.classList.add('hidden');
+                showMessage('Horário salvo com sucesso!');
+            } catch(error) {
+                console.error("Error saving schedule: ", error);
+                showMessage("Erro ao salvar horário. Tente novamente.");
+            }
         });
         
+        postGradedCheckbox.addEventListener('change', (e) => {
+            pointsContainer.classList.toggle('hidden', !e.target.checked);
+        });
+
         closeAiTipsModal.addEventListener('click', () => aiTipsModal.classList.add('hidden'));
 
         // --- INITIALIZATION ---
