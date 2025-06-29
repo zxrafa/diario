@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
+<html lang="pt-BR" class="dark"> <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diário Escolar com IA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <title>Diário Escolar</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -17,80 +19,83 @@
         body {
             font-family: 'Inter', sans-serif;
             -webkit-tap-highlight-color: transparent;
+            /* Add padding to respect the safe areas on devices with notches */
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
         }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        /* MODERN SCROLLBAR STYLES */
+        ::-webkit-scrollbar { 
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track { 
+            background: transparent; 
+        }
+        ::-webkit-scrollbar-thumb { 
+            background: #4b5563; /* Tailwind gray-600 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover { 
+            background: #6b7280; /* Tailwind gray-500 */
+        }
         .modal-content { animation: slide-up 0.3s ease-out; }
         @keyframes slide-up {
             from { transform: translateY(30px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
         .admin-only { display: none; }
-        /* Spinner for AI loading */
-        .loader {
-            border: 4px solid #f3f3f3; /* Light grey */
-            border-top: 4px solid #4f46e5; /* Indigo */
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900">
+<body class="bg-gray-900"> 
 
-    <div id="app-container" class="max-w-md mx-auto h-screen bg-white dark:bg-gray-800 flex flex-col shadow-2xl">
+    <div id="app-container" class="max-w-md mx-auto h-screen bg-gray-800 flex flex-col shadow-2xl">
 
         <div id="login-screen" class="flex flex-col items-center justify-center h-full p-8">
-            <h1 class="text-3xl font-bold text-indigo-600 dark:text-indigo-400 mb-2">Diário Escolar IA</h1>
-            <p class="text-gray-500 dark:text-gray-400 mb-8">Digite seu nome para continuar</p>
+            <h1 class="text-3xl font-bold text-indigo-400 mb-2">Diário Escolar</h1>
+            <p class="text-gray-400 mb-8">Digite seu nome para continuar</p>
             <div class="w-full">
-                <input type="text" id="name-input" placeholder="Seu nome" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <button id="login-button" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg mt-4 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-900 transition-colors duration-300">
+                <input type="text" id="name-input" placeholder="Seu nome" class="w-full px-4 py-3 border border-gray-600 rounded-lg bg-gray-700 text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <button id="login-button" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg mt-4 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-900 transition-colors duration-300">
                     Entrar
                 </button>
             </div>
+            <button id="show-admin-login-button" class="mt-6 text-sm text-gray-400 hover:text-indigo-400">Entrar como Administrador</button>
         </div>
 
         <div id="main-app" class="hidden flex-1 flex flex-col">
-            <header class="p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm sticky top-0 z-10">
+            <header class="p-4 bg-gray-800 border-b border-gray-700 shadow-sm sticky top-0 z-10">
                 <div class="flex justify-between items-center">
-                    <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100">
+                    <h1 class="text-xl font-bold text-gray-100">
                         Olá, <span id="user-name-display"></span>!
                     </h1>
-                    <button id="logout-button" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400">
+                    <button id="logout-button" class="p-2 rounded-full hover:bg-gray-700 text-gray-400">
                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
                     </button>
                 </div>
                 <nav class="mt-4">
-                    <div class="flex border-b border-gray-200 dark:border-gray-600">
-                        <button id="tab-atividades" class="tab-button flex-1 py-2 text-sm font-medium text-center text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-500">
+                    <div class="flex">
+                        <button id="tab-atividades" class="tab-button flex-1 py-2 text-sm font-medium text-center border-b-2 text-indigo-400 border-indigo-500">
                             Atividades
                         </button>
-                        <button id="tab-horario" class="tab-button flex-1 py-2 text-sm font-medium text-center text-gray-500 dark:text-gray-400">
+                        <button id="tab-horario" class="tab-button flex-1 py-2 text-sm font-medium text-center border-b-2 text-gray-400 border-gray-700">
                             Horário
                         </button>
                     </div>
                 </nav>
             </header>
 
-            <main class="flex-1 overflow-y-auto p-4 bg-gray-50 dark:bg-gray-900/50">
+            <main class="flex-1 overflow-y-auto p-4 bg-gray-900/50">
                 <div id="atividades-section">
                     <div id="activities-list" class="space-y-4">
                         </div>
                 </div>
                 
                 <div id="horario-section" class="hidden">
-                    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
+                    <div class="bg-gray-800 p-4 rounded-lg shadow">
                          <div class="flex justify-between items-center mb-4">
-                             <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">Horário de Aulas</h2>
-                             <button id="edit-schedule-button" class="admin-only items-center gap-1 text-sm bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 px-3 py-1 rounded-md hover:bg-indigo-200">
+                             <h2 class="text-lg font-bold text-gray-100">Horário de Aulas</h2>
+                             <button id="edit-schedule-button" class="admin-only items-center gap-1 text-sm bg-indigo-900 text-indigo-300 px-3 py-1 rounded-md hover:bg-indigo-800">
                                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil"><line x1="18" x2="22" y1="2" y2="6"/><path d="M7.5 20.5 19 9l-4-4L3.5 16.5 2 22z"/></svg>
                                  Editar
                              </button>
@@ -101,39 +106,49 @@
                 </div>
             </main>
 
-            <button id="admin-fab" class="absolute bottom-6 right-6 bg-indigo-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-700 transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+            <button id="add-post-fab" class="admin-only absolute bottom-6 right-6 bg-indigo-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-700 transition-transform transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
             </button>
         </div>
     </div>
     
     <div id="admin-login-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-20">
-        <div class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm">
-            <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4">Login de Administrador</h2>
-            <input type="text" id="admin-name" placeholder="Nome de admin" class="w-full mb-3 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
-            <input type="password" id="admin-password" placeholder="Senha" class="w-full mb-4 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+        <div class="modal-content bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm">
+            <h2 class="text-lg font-bold text-gray-100 mb-4">Login de Administrador</h2>
+            <input type="text" id="admin-name" placeholder="Nome de admin" class="w-full mb-3 px-3 py-2 border rounded-md bg-gray-700 border-gray-600 text-white focus:ring-2 focus:ring-indigo-500 outline-none">
+            <input type="password" id="admin-password" placeholder="Senha" class="w-full mb-4 px-3 py-2 border rounded-md bg-gray-700 border-gray-600 text-white focus:ring-2 focus:ring-indigo-500 outline-none">
             <p id="admin-login-error" class="text-red-500 text-sm mb-4 hidden"></p>
             <div class="flex justify-end space-x-2">
-                <button id="cancel-admin-login" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300">Cancelar</button>
+                <button id="cancel-admin-login" class="px-4 py-2 bg-gray-600 text-gray-200 rounded-md hover:bg-gray-500">Cancelar</button>
                 <button id="confirm-admin-login" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Entrar</button>
             </div>
         </div>
     </div>
 
     <div id="new-post-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-30">
-        <form id="new-post-form" class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm space-y-4">
+        <form id="new-post-form" class="modal-content bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm space-y-4">
             <div class="flex justify-between items-center">
-                <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">Nova Postagem</h2>
-                <button type="button" id="cancel-new-post" class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">&times;</button>
+                <h2 class="text-lg font-bold text-gray-100">Nova Postagem</h2>
+                <button type="button" id="cancel-new-post" class="p-2 rounded-full text-gray-300 hover:bg-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
             </div>
-            <input type="text" id="post-title" placeholder="Título da atividade/trabalho" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
-            <textarea id="post-description" placeholder="Descrição (opcional)..." rows="3" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
-            <input type="text" id="post-subject" placeholder="Matéria" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
+            <input type="text" id="post-title" placeholder="Título da atividade/trabalho" class="w-full px-3 py-2 border rounded-md bg-gray-700 border-gray-600 text-white" required>
+            <textarea id="post-description" placeholder="Descrição (opcional)..." rows="3" class="w-full px-3 py-2 border rounded-md bg-gray-700 border-gray-600 text-white"></textarea>
+            <input type="text" id="post-subject" placeholder="Matéria" class="w-full px-3 py-2 border rounded-md bg-gray-700 border-gray-600 text-white" required>
             <div>
-                <label class="text-sm text-gray-600 dark:text-gray-300">Data de Entrega</label>
-                <input type="date" id="post-duedate" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
+                <label class="text-sm text-gray-300">Anexo (opcional)</label>
+                <input type="file" id="post-attachment" class="hidden">
+                <label for="post-attachment" class="mt-1 w-full flex items-center gap-2 px-3 py-2 border-2 border-dashed border-gray-600 rounded-md cursor-pointer hover:bg-gray-700">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-paperclip"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.59a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                     <span id="attachment-filename" class="text-sm text-gray-400">Selecionar arquivo...</span>
+                </label>
             </div>
-            <select id="post-type" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <div>
+                <label class="text-sm text-gray-300">Data de Entrega</label>
+                <input type="date" id="post-duedate" class="w-full px-3 py-2 border rounded-md bg-gray-700 border-gray-600 text-white" required>
+            </div>
+            <select id="post-type" class="w-full px-3 py-2 border rounded-md bg-gray-700 border-gray-600 text-white">
                 <option value="Atividade">Atividade</option>
                 <option value="Trabalho">Trabalho</option>
                 <option value="Aviso">Aviso</option>
@@ -141,48 +156,68 @@
             </select>
             <div class="flex items-center space-x-3">
                 <input type="checkbox" id="post-graded" class="h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500">
-                <label for="post-graded" class="text-sm text-gray-600 dark:text-gray-300">Vale ponto?</label>
+                <label for="post-graded" class="text-sm text-gray-300">Vale ponto?</label>
             </div>
             <div id="points-container" class="hidden">
-                <input type="number" id="post-points" placeholder="Quantos pontos?" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <input type="number" id="post-points" placeholder="Quantos pontos?" class="w-full px-3 py-2 border rounded-md bg-gray-700 border-gray-600 text-white">
             </div>
              <p id="post-error" class="text-red-500 text-sm hidden"></p>
             <div class="flex justify-end">
-                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Postar</button>
+                <button type="submit" id="submit-post-button" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 flex items-center justify-center w-28">Postar</button>
             </div>
         </form>
     </div>
 
     <div id="edit-schedule-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-30">
-        <form id="edit-schedule-form" class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm space-y-3">
-            <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2">Editar Horário</h2>
-            <div><label class="text-sm font-medium text-gray-600 dark:text-gray-300">Segunda-feira</label><input type="text" id="edit-segunda" placeholder="Matérias do dia" class="w-full px-3 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
-            <div><label class="text-sm font-medium text-gray-600 dark:text-gray-300">Terça-feira</label><input type="text" id="edit-terca" placeholder="Matérias do dia" class="w-full px-3 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
-            <div><label class="text-sm font-medium text-gray-600 dark:text-gray-300">Quarta-feira</label><input type="text" id="edit-quarta" placeholder="Matérias do dia" class="w-full px-3 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
-            <div><label class="text-sm font-medium text-gray-600 dark:text-gray-300">Quinta-feira</label><input type="text" id="edit-quinta" placeholder="Matérias do dia" class="w-full px-3 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
-            <div><label class="text-sm font-medium text-gray-600 dark:text-gray-300">Sexta-feira</label><input type="text" id="edit-sexta" placeholder="Matérias do dia" class="w-full px-3 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
+        <form id="edit-schedule-form" class="modal-content bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm space-y-3">
+            <h2 class="text-lg font-bold text-gray-100 mb-2">Editar Horário</h2>
+            <div><label class="text-sm font-medium text-gray-300">Segunda-feira</label><input type="text" id="edit-segunda" placeholder="Matérias do dia" class="w-full px-3 py-2 mt-1 border rounded-md bg-gray-700 border-gray-600 text-white"></div>
+            <div><label class="text-sm font-medium text-gray-300">Terça-feira</label><input type="text" id="edit-terca" placeholder="Matérias do dia" class="w-full px-3 py-2 mt-1 border rounded-md bg-gray-700 border-gray-600 text-white"></div>
+            <div><label class="text-sm font-medium text-gray-300">Quarta-feira</label><input type="text" id="edit-quarta" placeholder="Matérias do dia" class="w-full px-3 py-2 mt-1 border rounded-md bg-gray-700 border-gray-600 text-white"></div>
+            <div><label class="text-sm font-medium text-gray-300">Quinta-feira</label><input type="text" id="edit-quinta" placeholder="Matérias do dia" class="w-full px-3 py-2 mt-1 border rounded-md bg-gray-700 border-gray-600 text-white"></div>
+            <div><label class="text-sm font-medium text-gray-300">Sexta-feira</label><input type="text" id="edit-sexta" placeholder="Matérias do dia" class="w-full px-3 py-2 mt-1 border rounded-md bg-gray-700 border-gray-600 text-white"></div>
             <div class="flex justify-end space-x-2 pt-2">
-                <button type="button" id="cancel-edit-schedule" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300">Cancelar</button>
+                <button type="button" id="cancel-edit-schedule" class="px-4 py-2 bg-gray-600 text-gray-200 rounded-md hover:bg-gray-500">Cancelar</button>
                 <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Salvar</button>
             </div>
         </form>
     </div>
     
-    <div id="ai-tips-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-40">
-        <div class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md">
+    <div id="doubts-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-40">
+        <div class="modal-content bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-md flex flex-col">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-bold text-indigo-600 dark:text-indigo-400">Dicas de Estudo com IA</h2>
-                <button id="close-ai-tips-modal" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">&times;</button>
+                <h2 class="text-lg font-bold text-gray-100">Dúvidas sobre: <span id="doubts-activity-title" class="text-indigo-400"></span></h2>
+                <button id="close-doubts-modal" class="p-2 rounded-full text-gray-300 hover:bg-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
             </div>
-            <div id="ai-tips-content" class="text-gray-700 dark:text-gray-300 space-y-2 prose max-h-96 overflow-y-auto">
+            <div id="doubts-list" class="space-y-3 max-h-64 overflow-y-auto mb-4 p-2 bg-gray-900/50 rounded-md">
                 </div>
+            <form id="doubts-form" class="mt-auto pt-4 border-t border-gray-700">
+                <div class="flex items-center gap-2">
+                    <input type="text" id="doubt-input" placeholder="Escreva sua dúvida..." required class="w-full text-sm px-3 py-2 border rounded-md bg-gray-700 border-gray-600 text-white">
+                    <button type="submit" class="p-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="message-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
+        <div class="modal-content bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm text-center">
+            <p id="message-text" class="text-gray-200 mb-4"></p>
+            <button id="message-ok-button" class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">OK</button>
         </div>
     </div>
 
-    <div id="message-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
-        <div class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm text-center">
-            <p id="message-text" class="text-gray-800 dark:text-gray-200 mb-4"></p>
-            <button id="message-ok-button" class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">OK</button>
+    <div id="confirm-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
+        <div class="modal-content bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm text-center">
+            <p id="confirm-message-text" class="text-gray-200 mb-6"></p>
+            <div class="flex justify-center space-x-4">
+                <button id="confirm-cancel-button" class="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500 w-28">Cancelar</button>
+                <button id="confirm-ok-button" class="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 w-28">Deletar</button>
+            </div>
         </div>
     </div>
 
@@ -190,46 +225,45 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, doc, setDoc, getDoc, deleteDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
 
         // --- CONFIGURATION ---
-        const PASTEBIN_URL = 'https://corsproxy.io/?' + encodeURIComponent('https://pastebin.com/raw/iufMNw3v');
+        const PASTEBIN_URL = 'https://corsproxy.io/?' + encodeURIComponent('https://pastebin.com/raw/BYJTzPdc');
         const FIREBASE_COLLECTION_ACTIVITIES = 'public_activities';
         const FIREBASE_COLLECTION_SCHEDULE = 'public_schedule';
         const SCHEDULE_DOC_ID = 'current_schedule';
-        const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='; // Add your key if not using the proxy
 
         // --- DOM ELEMENTS ---
         const loginScreen = document.getElementById('login-screen');
         const mainApp = document.getElementById('main-app');
         const loginButton = document.getElementById('login-button');
         const nameInput = document.getElementById('name-input');
+        const showAdminLoginButton = document.getElementById('show-admin-login-button');
         const userNameDisplay = document.getElementById('user-name-display');
         const logoutButton = document.getElementById('logout-button');
-
         const tabAtividades = document.getElementById('tab-atividades');
         const tabHorario = document.getElementById('tab-horario');
         const atividadesSection = document.getElementById('atividades-section');
         const horarioSection = document.getElementById('horario-section');
         const activitiesList = document.getElementById('activities-list');
         const scheduleDisplay = document.getElementById('schedule-display');
-        
-        const adminFab = document.getElementById('admin-fab');
-        
+        const addPostFab = document.getElementById('add-post-fab');
         const adminLoginModal = document.getElementById('admin-login-modal');
         const confirmAdminLogin = document.getElementById('confirm-admin-login');
         const cancelAdminLogin = document.getElementById('cancel-admin-login');
         const adminNameInput = document.getElementById('admin-name');
         const adminPasswordInput = document.getElementById('admin-password');
         const adminLoginError = document.getElementById('admin-login-error');
-        
         const newPostModal = document.getElementById('new-post-modal');
         const newPostForm = document.getElementById('new-post-form');
         const cancelNewPost = document.getElementById('cancel-new-post');
+        const attachmentInput = document.getElementById('post-attachment');
+        const attachmentFilename = document.getElementById('attachment-filename');
+        const submitPostButton = document.getElementById('submit-post-button');
         const postGradedCheckbox = document.getElementById('post-graded');
         const pointsContainer = document.getElementById('points-container');
         const postError = document.getElementById('post-error');
-
         const editScheduleModal = document.getElementById('edit-schedule-modal');
         const editScheduleButton = document.getElementById('edit-schedule-button');
         const editScheduleForm = document.getElementById('edit-schedule-form');
@@ -241,20 +275,28 @@
             quinta: document.getElementById('edit-quinta'),
             sexta: document.getElementById('edit-sexta'),
         };
-        
-        const aiTipsModal = document.getElementById('ai-tips-modal');
-        const aiTipsContent = document.getElementById('ai-tips-content');
-        const closeAiTipsModal = document.getElementById('close-ai-tips-modal');
-
+        const doubtsModal = document.getElementById('doubts-modal');
+        const doubtsActivityTitle = document.getElementById('doubts-activity-title');
+        const doubtsList = document.getElementById('doubts-list');
+        const doubtsForm = document.getElementById('doubts-form');
+        const closeDoubtsModal = document.getElementById('close-doubts-modal');
         const messageModal = document.getElementById('message-modal');
         const messageText = document.getElementById('message-text');
         const messageOkButton = document.getElementById('message-ok-button');
+        const confirmModal = document.getElementById('confirm-modal');
+        const confirmMessageText = document.getElementById('confirm-message-text');
+        const confirmOkButton = document.getElementById('confirm-ok-button');
+        const confirmCancelButton = document.getElementById('confirm-cancel-button');
 
         // --- APP STATE ---
-        let db, auth;
+        let db, auth, storage;
         let currentUsername = '';
         let admins = {}; 
         let isAdmin = false;
+        let authReady = false; 
+        let currentScheduleData = null;
+        let allActivities = [];
+        let confirmCallback = null;
 
         // --- FIREBASE SETUP ---
         const firebaseConfig = {
@@ -270,14 +312,39 @@
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
+            storage = getStorage(app); 
         } catch (error) {
             console.error("Firebase initialization failed:", error);
             showMessage("Erro Crítico: Não foi possível conectar ao servidor.");
         }
 
-        // --- AUTHENTICATION ---
+        // --- AUTHENTICATION & INITIALIZATION ---
+        const initializeAppUI = () => {
+            const savedName = localStorage.getItem('schoolDiaryUsername');
+            const savedAdminName = localStorage.getItem('schoolDiaryAdminUsername');
+
+            if (savedName) {
+                currentUsername = savedName;
+                userNameDisplay.textContent = savedName;
+                loginScreen.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+                
+                if (savedName === savedAdminName) {
+                    promptForAdminPassword(savedName);
+                }
+            } else {
+                loginScreen.classList.remove('hidden');
+                mainApp.classList.add('hidden');
+            }
+            toggleAdminFeatures(false);
+            setupListeners(); 
+        };
+
         onAuthStateChanged(auth, user => {
-            if (!user) {
+            if (user && !authReady) {
+                authReady = true; 
+                initializeAppUI(); 
+            } else if (!user) {
                 signInAnonymously(auth).catch(error => {
                     console.error("Anonymous sign-in failed:", error);
                     if (error.code === 'auth/configuration-not-found') {
@@ -295,17 +362,24 @@
             messageModal.classList.remove('hidden');
         };
 
+        const showConfirm = (message, onConfirm) => {
+            confirmMessageText.textContent = message;
+            confirmCallback = onConfirm;
+            confirmModal.classList.remove('hidden');
+        };
+
         const toggleAdminFeatures = (show) => {
             isAdmin = show;
             document.querySelectorAll('.admin-only').forEach(el => {
                 el.style.display = show ? 'flex' : 'none';
             });
-            const fabIcon = adminFab.querySelector('svg');
-            if (show) {
-                fabIcon.innerHTML = `<path d="M5 12h14"/><path d="M12 5v14"/>`; // Plus icon
-            } else {
-                fabIcon.innerHTML = `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/>`; // Shield icon
-            }
+        };
+        
+        const promptForAdminPassword = (name) => {
+            adminNameInput.value = name;
+            adminNameInput.disabled = true;
+            adminLoginModal.classList.remove('hidden');
+            adminPasswordInput.focus();
         };
 
         const fetchAdmins = async () => {
@@ -325,53 +399,63 @@
         };
 
         const renderActivities = (activities) => {
+            allActivities = activities; 
             activitiesList.innerHTML = ''; 
             if (activities.length === 0) {
-                 activitiesList.innerHTML = `<div class="text-center text-gray-500 dark:text-gray-400 py-10">Nenhuma atividade postada.</div>`;
+                 activitiesList.innerHTML = `<div class="text-center text-gray-400 py-10">Nenhuma atividade postada.</div>`;
                  return;
             }
             const sortedActivities = activities.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-            
             checkDueDates(sortedActivities);
-
             sortedActivities.forEach(activity => {
                 const dueDate = new Date(activity.dueDate);
                 dueDate.setMinutes(dueDate.getMinutes() + dueDate.getTimezoneOffset());
                 const formattedDate = dueDate.toLocaleDateString('pt-BR');
+                const pointsText = activity.isGraded ? `<span class="font-bold text-green-400">${activity.points} pts</span>` : 'Não vale nota';
+                let typeBadgeColor = 'bg-blue-900 text-blue-300';
+                if (activity.type === 'Trabalho') typeBadgeColor = 'bg-purple-900 text-purple-300';
+                if (activity.type === 'Prova') typeBadgeColor = 'bg-red-900 text-red-300';
+                
+                const descriptionHtml = activity.description ? `<p class="mt-2 text-sm text-gray-400">${activity.description.replace(/\n/g, '<br>')}</p>` : '';
+                
+                let attachmentHtml = '';
+                if (activity.attachmentUrl) {
+                    attachmentHtml = `
+                    <div class="mt-3">
+                        <a href="${activity.attachmentUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sm text-indigo-400 font-semibold hover:text-indigo-300 p-2 -ml-2 rounded-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-paperclip"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.59a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                            ${activity.attachmentName || 'Ver Anexo'}
+                        </a>
+                    </div>`;
+                }
 
-                const pointsText = activity.isGraded ? `<span class="font-bold text-green-600 dark:text-green-400">${activity.points} pts</span>` : 'Não vale nota';
-                
-                let typeBadgeColor = 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
-                if (activity.type === 'Trabalho') typeBadgeColor = 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
-                if (activity.type === 'Prova') typeBadgeColor = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
-                
-                // NEW: Add description HTML if it exists
-                const descriptionHtml = activity.description ? `<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">${activity.description.replace(/\n/g, '<br>')}</p>` : '';
+                const doubtsButtonHtml = `
+                    <div class="mt-3 pt-3 border-t border-gray-700">
+                        <button class="show-doubts-btn w-full flex items-center justify-center gap-2 text-sm text-indigo-400 font-semibold hover:bg-gray-700 p-2 rounded-md" data-id="${activity.id}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle-question"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                            Dúvidas (${activity.doubts?.length || 0})
+                        </button>
+                    </div>`;
 
                 const card = `
-                    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow transition-all hover:shadow-md">
+                    <div class="bg-gray-800 p-4 rounded-lg shadow transition-all hover:shadow-md">
                         <div class="flex justify-between items-start">
-                            <h3 class="font-bold text-lg text-gray-800 dark:text-gray-100">${activity.title}</h3>
+                            <h3 class="font-bold text-lg text-gray-100">${activity.title}</h3>
                             <div class="flex items-center gap-2">
                                 <span class="text-xs font-medium px-2 py-1 rounded-full ${typeBadgeColor}">${activity.type}</span>
-                                <button class="admin-only delete-activity-btn p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900 rounded-full" data-id="${activity.id}">
+                                <button class="admin-only delete-activity-btn p-1 text-red-500 hover:bg-red-900 rounded-full" data-id="${activity.id}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                                 </button>
                             </div>
                         </div>
-                        <p class="text-sm text-indigo-500 dark:text-indigo-400 font-medium mt-1">${activity.subject}</p>
+                        <p class="text-sm text-indigo-400 font-medium mt-1">${activity.subject}</p>
                         ${descriptionHtml}
                         <div class="flex justify-between items-center mt-4 text-sm">
-                            <p class="text-gray-600 dark:text-gray-300"><span class="font-semibold">Entrega:</span> ${formattedDate}</p>
-                            <p class="text-gray-600 dark:text-gray-300">${pointsText}</p>
+                            <p class="text-gray-300"><span class="font-semibold">Entrega:</span> ${formattedDate}</p>
+                            <p class="text-gray-300">${pointsText}</p>
                         </div>
-                        <div class="mt-3 pt-3 border-t dark:border-gray-700">
-                             <button class="ai-tips-btn w-full flex items-center justify-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 font-semibold hover:bg-indigo-50 dark:hover:bg-gray-700 p-2 rounded-md" 
-                                data-title="${activity.title}" data-subject="${activity.subject}" data-type="${activity.type}">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lightbulb"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
-                                Gerar Dicas de Estudo com IA
-                             </button>
-                        </div>
+                        ${attachmentHtml}
+                        ${doubtsButtonHtml}
                     </div>`;
                 activitiesList.innerHTML += card;
             });
@@ -382,23 +466,47 @@
             scheduleDisplay.innerHTML = '';
             const days = { segunda: 'Segunda', terca: 'Terça', quarta: 'Quarta', quinta: 'Quinta', sexta: 'Sexta' };
             let contentAdded = false;
-
             for (const [key, dayName] of Object.entries(days)) {
                 const subjects = scheduleData?.[key] || '';
                 if(subjects){
                     const dayHtml = `
                     <div class="grid grid-cols-4 gap-2 items-center">
-                        <strong class="font-semibold text-gray-700 dark:text-gray-300 col-span-1">${dayName}:</strong>
-                        <span class="text-gray-600 dark:text-gray-400 col-span-3">${subjects}</span>
+                        <strong class="font-semibold text-gray-300 col-span-1">${dayName}:</strong>
+                        <span class="text-gray-400 col-span-3">${subjects}</span>
                     </div>`;
                     scheduleDisplay.innerHTML += dayHtml;
                     contentAdded = true;
                 }
             }
-
             if(!contentAdded) {
-                scheduleDisplay.innerHTML = `<div class="text-center text-gray-500 dark:text-gray-400 py-10">O horário ainda não foi definido.</div>`;
+                scheduleDisplay.innerHTML = `<div class="text-center text-gray-400 py-10">O horário ainda não foi definido.</div>`;
             }
+        };
+
+        const openDoubtsModal = (activityId) => {
+            const activity = allActivities.find(act => act.id === activityId);
+            if (!activity) return;
+
+            doubtsActivityTitle.textContent = activity.title;
+            doubtsForm.dataset.id = activityId;
+            doubtsList.innerHTML = '';
+
+            if (activity.doubts && activity.doubts.length > 0) {
+                 const sortedDoubts = activity.doubts.sort((a,b) => new Date(a.timestamp.seconds * 1000) - new Date(b.timestamp.seconds * 1000));
+                 sortedDoubts.forEach(doubt => {
+                    const doubtEl = document.createElement('div');
+                    doubtEl.className = 'text-xs bg-gray-800 p-2 rounded-md';
+                    doubtEl.innerHTML = `
+                        <p class="font-bold text-gray-200">${doubt.user}:</p>
+                        <p class="text-gray-400">${doubt.text}</p>
+                    `;
+                    doubtsList.appendChild(doubtEl);
+                });
+            } else {
+                doubtsList.innerHTML = '<p class="text-xs text-center text-gray-400 p-4">Nenhuma dúvida enviada.</p>';
+            }
+
+            doubtsModal.classList.remove('hidden');
         };
 
         const checkDueDates = (activities) => {
@@ -406,17 +514,14 @@
             today.setHours(0, 0, 0, 0);
             const tomorrow = new Date(today);
             tomorrow.setDate(tomorrow.getDate() + 1);
-
             const dueTomorrow = activities.filter(act => {
                 const dueDate = new Date(act.dueDate);
                 dueDate.setMinutes(dueDate.getMinutes() + dueDate.getTimezoneOffset());
                 return dueDate.getTime() === tomorrow.getTime();
             });
-
             if (dueTomorrow.length > 0) {
                 const todayStr = today.toISOString().split('T')[0];
                 const notifiedToday = sessionStorage.getItem('notifiedDate') === todayStr;
-
                 if (!notifiedToday) {
                     const activityTitles = dueTomorrow.map(a => a.title).join(', ');
                     showMessage(`Atenção: As seguintes atividades são para amanhã: ${activityTitles}.`);
@@ -424,50 +529,30 @@
                 }
             }
         };
-
-        const callGeminiApi = async (prompt) => {
-            aiTipsContent.innerHTML = `<div class="flex justify-center items-center"><div class="loader"></div></div>`;
-            aiTipsModal.classList.remove('hidden');
-
-            const apiKey = ""; // Canvas will provide the key
-            const fullApiUrl = `${GEMINI_API_URL}${apiKey}`;
-            
-            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
-
-            try {
-                const response = await fetch(fullApiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
-
-                const result = await response.json();
-                if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
-                    const text = result.candidates[0].content.parts[0].text;
-                    aiTipsContent.innerHTML = text.replace(/\n/g, '<br>');
-                } else {
-                     throw new Error("Resposta da IA em formato inesperado.");
-                }
-            } catch (error) {
-                console.error("Gemini API call failed:", error);
-                aiTipsContent.innerHTML = `<p class="text-red-500">Não foi possível gerar as dicas. Tente novamente mais tarde.</p>`;
-            }
-        };
-
+        
         const setupListeners = () => {
              const publicActivitiesPath = `public_activities`;
              onSnapshot(query(collection(db, publicActivitiesPath)), (snapshot) => {
                 const activities = [];
                 snapshot.forEach((doc) => activities.push({ id: doc.id, ...doc.data() }));
                 renderActivities(activities);
-             }, (error) => console.error("Error listening to activities:", error));
+             }, (error) => {
+                console.error("Error listening to activities:", error);
+                if (error.code === 'permission-denied') {
+                    showMessage("Erro de Permissão: Verifique se as Regras de Segurança do Firestore estão configuradas para permitir leitura na coleção 'public_activities'.");
+                }
+             });
             
              const scheduleDocPath = `public_schedule/${SCHEDULE_DOC_ID}`;
              onSnapshot(doc(db, scheduleDocPath), (docSnap) => {
-                renderSchedule(docSnap.exists() ? docSnap.data() : null);
-             }, (error) => console.error("Error listening to schedule:", error));
+                currentScheduleData = docSnap.exists() ? docSnap.data() : null;
+                renderSchedule(currentScheduleData);
+             }, (error) => {
+                console.error("Error listening to schedule:", error);
+                if (error.code === 'permission-denied') {
+                    showMessage("Erro de Permissão: Verifique se as Regras de Segurança do Firestore estão configuradas para permitir leitura na coleção 'public_schedule'.");
+                }
+             });
         };
 
         // --- EVENT LISTENERS ---
@@ -479,12 +564,17 @@
                 userNameDisplay.textContent = name;
                 loginScreen.classList.add('hidden');
                 mainApp.classList.remove('hidden');
-                setupListeners();
+                
+                const savedAdminName = localStorage.getItem('schoolDiaryAdminUsername');
+                if (name === savedAdminName) {
+                    promptForAdminPassword(name);
+                }
             }
         });
 
         logoutButton.addEventListener('click', () => {
             localStorage.removeItem('schoolDiaryUsername');
+            localStorage.removeItem('schoolDiaryAdminUsername');
             currentUsername = '';
             toggleAdminFeatures(false);
             mainApp.classList.add('hidden');
@@ -492,31 +582,32 @@
             nameInput.value = '';
         });
 
-        // FIX: Added event listener for tab navigation
         [tabAtividades, tabHorario].forEach(tab => {
             tab.addEventListener('click', () => {
-                const isAtividades = tab === tabAtividades;
-
-                tabAtividades.classList.toggle('border-indigo-500', isAtividades);
-                tabAtividades.classList.toggle('text-gray-500', !isAtividades);
-                tabAtividades.classList.toggle('text-indigo-600', isAtividades);
+                const isAtividades = tab.id === 'tab-atividades';
                 
-                tabHorario.classList.toggle('border-indigo-500', !isAtividades);
-                tabHorario.classList.toggle('text-gray-500', isAtividades);
-                tabHorario.classList.toggle('text-indigo-600', !isAtividades);
+                tabAtividades.classList.toggle('border-indigo-500', isAtividades);
+                tabAtividades.classList.toggle('text-indigo-400', isAtividades);
+                tabAtividades.classList.toggle('border-gray-700', !isAtividades);
+                tabAtividades.classList.toggle('text-gray-400', !isAtividades);
 
+                tabHorario.classList.toggle('border-indigo-500', !isAtividades);
+                tabHorario.classList.toggle('text-indigo-400', !isAtividades);
+                tabHorario.classList.toggle('border-gray-700', isAtividades);
+                tabHorario.classList.toggle('text-gray-400', isAtividades);
+                
                 atividadesSection.classList.toggle('hidden', !isAtividades);
                 horarioSection.classList.toggle('hidden', isAtividades);
             });
         });
 
-        activitiesList.addEventListener('click', async (e) => {
+        activitiesList.addEventListener('click', (e) => {
             const deleteBtn = e.target.closest('.delete-activity-btn');
-            const aiTipsBtn = e.target.closest('.ai-tips-btn');
+            const doubtsBtn = e.target.closest('.show-doubts-btn');
 
             if (deleteBtn) {
                 const docId = deleteBtn.dataset.id;
-                if (confirm('Tem certeza que deseja deletar esta atividade?')) {
+                showConfirm('Tem certeza que deseja deletar esta atividade?', async () => {
                     try {
                         await deleteDoc(doc(db, 'public_activities', docId));
                         showMessage('Atividade deletada com sucesso!');
@@ -524,26 +615,24 @@
                         console.error("Error deleting document: ", error);
                         showMessage('Erro ao deletar atividade.');
                     }
-                }
+                });
             }
-            
-            if (aiTipsBtn) {
-                const title = aiTipsBtn.dataset.title;
-                const subject = aiTipsBtn.dataset.subject;
-                const type = aiTipsBtn.dataset.type;
-                const prompt = `Gere 3 dicas de estudo curtas e objetivas para um(a) ${type} de ${subject} com o tema '${title}'. Formate como uma lista simples.`;
-                callGeminiApi(prompt);
+            if (doubtsBtn) {
+                openDoubtsModal(doubtsBtn.dataset.id);
             }
         });
         
-        adminFab.addEventListener('click', () => {
-            if (isAdmin) {
-                newPostForm.reset();
-                pointsContainer.classList.add('hidden');
-                newPostModal.classList.remove('hidden');
-            } else {
-                adminLoginModal.classList.remove('hidden');
-            }
+        showAdminLoginButton.addEventListener('click', () => {
+            adminNameInput.value = '';
+            adminNameInput.disabled = false;
+            adminLoginModal.classList.remove('hidden');
+        });
+
+        addPostFab.addEventListener('click', () => {
+            newPostForm.reset();
+            attachmentFilename.textContent = 'Selecionar arquivo...';
+            pointsContainer.classList.add('hidden');
+            newPostModal.classList.remove('hidden');
         });
         
         confirmAdminLogin.addEventListener('click', async () => {
@@ -558,10 +647,17 @@
             if (admins[name] && admins[name] === password) {
                 adminLoginModal.classList.add('hidden');
                 toggleAdminFeatures(true);
-                showMessage(`Bem-vindo, admin ${name}!`);
+                currentUsername = name;
+                localStorage.setItem('schoolDiaryUsername', name);
+                localStorage.setItem('schoolDiaryAdminUsername', name); 
+                userNameDisplay.textContent = name;
+                loginScreen.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+                
                 adminNameInput.value = '';
                 adminPasswordInput.value = '';
                 adminLoginError.classList.add('hidden');
+                adminNameInput.disabled = false;
             } else {
                 adminLoginError.textContent = 'Nome de administrador ou senha inválidos.';
                 adminLoginError.classList.remove('hidden');
@@ -570,12 +666,22 @@
         
         cancelAdminLogin.addEventListener('click', () => {
              adminLoginModal.classList.add('hidden');
+             adminNameInput.disabled = false;
         });
 
         cancelNewPost.addEventListener('click', () => {
             newPostForm.reset();
+            attachmentFilename.textContent = 'Selecionar arquivo...';
             pointsContainer.classList.add('hidden');
             newPostModal.classList.add('hidden');
+        });
+        
+        attachmentInput.addEventListener('change', () => {
+            if (attachmentInput.files.length > 0) {
+                attachmentFilename.textContent = attachmentInput.files[0].name;
+            } else {
+                attachmentFilename.textContent = 'Selecionar arquivo...';
+            }
         });
         
         cancelEditSchedule.addEventListener('click', () => {
@@ -588,7 +694,11 @@
 
         newPostForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const newActivity = {
+            submitPostButton.disabled = true;
+            submitPostButton.innerHTML = `<svg class="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v1.5a6.5 6.5 0 00-6.5 6.5H4z"></path></svg>`;
+            postError.classList.add('hidden');
+
+            const newActivityData = {
                 title: document.getElementById('post-title').value.trim(),
                 description: document.getElementById('post-description').value.trim(),
                 subject: document.getElementById('post-subject').value.trim(),
@@ -596,36 +706,64 @@
                 type: document.getElementById('post-type').value,
                 isGraded: postGradedCheckbox.checked,
                 points: document.getElementById('post-points').value ? Number(document.getElementById('post-points').value) : 0,
-                timestamp: serverTimestamp()
+                timestamp: serverTimestamp(),
+                doubts: [],
+                attachmentUrl: null,
+                attachmentName: null
             };
-            if (!newActivity.title || !newActivity.subject || !newActivity.dueDate) {
+
+            if (!newActivityData.title || !newActivityData.subject || !newActivityData.dueDate) {
                 postError.textContent = 'Por favor, preencha Título, Matéria e Data.';
-                postError.classList.remove('hidden'); return;
+                postError.classList.remove('hidden'); 
+                submitPostButton.disabled = false;
+                submitPostButton.innerHTML = 'Postar';
+                return;
             }
+
             try {
-                 await addDoc(collection(db, 'public_activities'), newActivity);
+                const file = attachmentInput.files[0];
+                if (file) {
+                    const storageRef = ref(storage, `attachments/${Date.now()}_${file.name}`);
+                    const uploadResult = await uploadBytes(storageRef, file);
+                    newActivityData.attachmentUrl = await getDownloadURL(uploadResult.ref);
+                    newActivityData.attachmentName = file.name;
+                }
+
+                 await addDoc(collection(db, 'public_activities'), newActivityData);
                  newPostForm.reset();
+                 attachmentFilename.textContent = 'Selecionar arquivo...';
                  pointsContainer.classList.add('hidden');
                  newPostModal.classList.add('hidden');
                  showMessage('Atividade postada com sucesso!');
             } catch(error) {
-                console.error("Error adding document: ", error);
-                postError.textContent = 'Erro ao salvar. Tente novamente.';
+                console.error("Error adding document or uploading file: ", error);
+                if (error.code && error.code.includes('storage/unauthorized')) {
+                     postError.textContent = 'Permissão negada para enviar anexo. Verifique as Regras do Storage.';
+                } else if (error.code && error.code.includes('permission-denied')) {
+                     postError.textContent = 'Permissão negada para salvar. Verifique as Regras do Firestore.';
+                } else {
+                     postError.textContent = 'Erro ao salvar. Tente novamente.';
+                }
                 postError.classList.remove('hidden');
+            } finally {
+                submitPostButton.disabled = false;
+                submitPostButton.innerHTML = 'Postar';
             }
         });
         
-        editScheduleButton.addEventListener('click', async () => {
-            const scheduleDocPath = `public_schedule/${SCHEDULE_DOC_ID}`;
-            const docRef = doc(db, scheduleDocPath);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                const data = docSnap.data();
+        editScheduleButton.addEventListener('click', () => {
+            if (!authReady) {
+                showMessage("Aguarde a conexão com o servidor ser estabelecida.");
+                return;
+            }
+            if (currentScheduleData) {
                 for(const day in scheduleInputs){
                     if(scheduleInputs[day]) {
-                        scheduleInputs[day].value = data[day] || '';
+                        scheduleInputs[day].value = currentScheduleData[day] || '';
                     }
                 }
+            } else {
+                editScheduleForm.reset();
             }
             editScheduleModal.classList.remove('hidden');
         });
@@ -647,28 +785,52 @@
             }
         });
         
+        doubtsForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const input = document.getElementById('doubt-input');
+            const doubtText = input.value.trim();
+            if (!doubtText) return;
+
+            const docId = doubtsForm.dataset.id;
+            const newDoubt = {
+                user: currentUsername || 'Anônimo',
+                text: doubtText,
+                timestamp: new Date()
+            };
+
+            const docRef = doc(db, 'public_activities', docId);
+            try {
+                await updateDoc(docRef, {
+                    doubts: arrayUnion(newDoubt)
+                });
+                input.value = '';
+                openDoubtsModal(docId);
+            } catch (error) {
+                console.error("Error adding doubt:", error);
+                showMessage("Não foi possível enviar a dúvida.");
+            }
+        });
+        
+        confirmOkButton.addEventListener('click', () => {
+            if (confirmCallback) {
+                confirmCallback();
+            }
+            confirmModal.classList.add('hidden');
+            confirmCallback = null;
+        });
+
+        confirmCancelButton.addEventListener('click', () => {
+            confirmModal.classList.add('hidden');
+            confirmCallback = null;
+        });
+
+        closeDoubtsModal.addEventListener('click', () => doubtsModal.classList.add('hidden'));
+        
         postGradedCheckbox.addEventListener('change', (e) => {
             pointsContainer.classList.toggle('hidden', !e.target.checked);
         });
 
-        closeAiTipsModal.addEventListener('click', () => aiTipsModal.classList.add('hidden'));
-
-        // --- INITIALIZATION ---
-        const checkLogin = () => {
-            const savedName = localStorage.getItem('schoolDiaryUsername');
-            if (savedName) {
-                currentUsername = savedName;
-                userNameDisplay.textContent = savedName;
-                loginScreen.classList.add('hidden');
-                mainApp.classList.remove('hidden');
-                setupListeners();
-            }
-            toggleAdminFeatures(false);
-            const mainFab = document.getElementById('admin-fab');
-            mainFab.style.display = 'flex';
-        };
-
-        checkLogin();
+        // --- Start App ---
         fetchAdmins();
     </script>
 
