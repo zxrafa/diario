@@ -140,7 +140,7 @@
         <form id="new-post-form" class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm space-y-4">
             <div class="flex justify-between items-center">
                 <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">Nova Postagem</h2>
-                <button type="button" id="cancel-new-post" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">&times;</button>
+                <button type="button" id="cancel-new-post" class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">&times;</button>
             </div>
             <input type="text" id="post-title" placeholder="Título da atividade/trabalho" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
             <input type="text" id="post-subject" placeholder="Matéria" class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white" required>
@@ -172,8 +172,12 @@
     <div id="edit-schedule-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-30">
         <form id="edit-schedule-form" class="modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 w-full max-w-sm space-y-3">
             <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2">Editar Horário</h2>
-            <!-- Schedule inputs... -->
-             <div class="flex justify-end space-x-2 pt-2">
+            <div><label class="text-sm font-medium text-gray-600 dark:text-gray-300">Segunda-feira</label><input type="text" id="edit-segunda" placeholder="Matérias do dia" class="w-full px-3 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
+            <div><label class="text-sm font-medium text-gray-600 dark:text-gray-300">Terça-feira</label><input type="text" id="edit-terca" placeholder="Matérias do dia" class="w-full px-3 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
+            <div><label class="text-sm font-medium text-gray-600 dark:text-gray-300">Quarta-feira</label><input type="text" id="edit-quarta" placeholder="Matérias do dia" class="w-full px-3 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
+            <div><label class="text-sm font-medium text-gray-600 dark:text-gray-300">Quinta-feira</label><input type="text" id="edit-quinta" placeholder="Matérias do dia" class="w-full px-3 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
+            <div><label class="text-sm font-medium text-gray-600 dark:text-gray-300">Sexta-feira</label><input type="text" id="edit-sexta" placeholder="Matérias do dia" class="w-full px-3 py-2 mt-1 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
+            <div class="flex justify-end space-x-2 pt-2">
                 <button type="button" id="cancel-edit-schedule" class="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-300">Cancelar</button>
                 <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Salvar</button>
             </div>
@@ -187,7 +191,7 @@
                 <h2 class="text-lg font-bold text-indigo-600 dark:text-indigo-400">Dicas de Estudo com IA</h2>
                 <button id="close-ai-tips-modal" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">&times;</button>
             </div>
-            <div id="ai-tips-content" class="text-gray-700 dark:text-gray-300 space-y-2 prose">
+            <div id="ai-tips-content" class="text-gray-700 dark:text-gray-300 space-y-2 prose max-h-96 overflow-y-auto">
                 <!-- AI content or loader will be here -->
             </div>
         </div>
@@ -250,6 +254,13 @@
         const editScheduleButton = document.getElementById('edit-schedule-button');
         const editScheduleForm = document.getElementById('edit-schedule-form');
         const cancelEditSchedule = document.getElementById('cancel-edit-schedule');
+        const scheduleInputs = {
+            segunda: document.getElementById('edit-segunda'),
+            terca: document.getElementById('edit-terca'),
+            quarta: document.getElementById('edit-quarta'),
+            quinta: document.getElementById('edit-quinta'),
+            sexta: document.getElementById('edit-sexta'),
+        };
         
         const aiTipsModal = document.getElementById('ai-tips-modal');
         const aiTipsContent = document.getElementById('ai-tips-content');
@@ -311,9 +322,11 @@
             });
             const fabIcon = adminFab.querySelector('svg');
             if (show) {
-                fabIcon.innerHTML = `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/>`; // Shield
+                // Change FAB icon to "add" when admin is logged in
+                fabIcon.innerHTML = `<path d="M5 12h14"/><path d="M12 5v14"/>`; // Plus icon
             } else {
-                fabIcon.innerHTML = `<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>`; // Login icon
+                // Change FAB icon to "login" when not admin
+                fabIcon.innerHTML = `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/>`; // Shield icon
             }
         };
 
@@ -336,7 +349,7 @@
         const renderActivities = (activities) => {
             activitiesList.innerHTML = ''; 
             if (activities.length === 0) {
-                 activitiesList.innerHTML = `<div class="text-center text-gray-500 dark:text-gray-400 py-10">...</div>`;
+                 activitiesList.innerHTML = `<div class="text-center text-gray-500 dark:text-gray-400 py-10">Nenhuma atividade postada.</div>`;
                  return;
             }
             const sortedActivities = activities.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
@@ -345,12 +358,15 @@
 
             sortedActivities.forEach(activity => {
                 const dueDate = new Date(activity.dueDate);
-                dueDate.setDate(dueDate.getDate() + 1);
+                // Fix for timezone issues where UTC date is one day behind
+                dueDate.setMinutes(dueDate.getMinutes() + dueDate.getTimezoneOffset());
                 const formattedDate = dueDate.toLocaleDateString('pt-BR');
+
                 const pointsText = activity.isGraded ? `<span class="font-bold text-green-600 dark:text-green-400">${activity.points} pts</span>` : 'Não vale nota';
                 
                 let typeBadgeColor = 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
                 if (activity.type === 'Trabalho') typeBadgeColor = 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
+                if (activity.type === 'Prova') typeBadgeColor = 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
 
                 const card = `
                     <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow transition-all hover:shadow-md">
@@ -378,7 +394,6 @@
                     </div>`;
                 activitiesList.innerHTML += card;
             });
-            // Make sure admin features are correctly shown/hidden on re-render
             toggleAdminFeatures(isAdmin);
         };
         
@@ -390,7 +405,7 @@
 
             const dueTomorrow = activities.filter(act => {
                 const dueDate = new Date(act.dueDate);
-                dueDate.setHours(0, 0, 0, 0);
+                dueDate.setMinutes(dueDate.getMinutes() + dueDate.getTimezoneOffset());
                 return dueDate.getTime() === tomorrow.getTime();
             });
 
@@ -413,12 +428,7 @@
             const apiKey = ""; // Canvas will provide the key
             const fullApiUrl = `${GEMINI_API_URL}${apiKey}`;
             
-            const payload = {
-                contents: [{
-                    role: "user",
-                    parts: [{ text: prompt }]
-                }]
-            };
+            const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }] };
 
             try {
                 const response = await fetch(fullApiUrl, {
@@ -427,9 +437,7 @@
                     body: JSON.stringify(payload)
                 });
 
-                if (!response.ok) {
-                    throw new Error(`API Error: ${response.statusText}`);
-                }
+                if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
 
                 const result = await response.json();
                 if (result.candidates && result.candidates[0]?.content?.parts[0]?.text) {
@@ -452,7 +460,10 @@
                 renderActivities(activities);
              }, (error) => console.error("Error listening to activities:", error));
             
-             // Other listeners...
+             const scheduleDocPath = `public_schedule/${SCHEDULE_DOC_ID}`;
+             onSnapshot(doc(db, scheduleDocPath), (docSnap) => {
+                 // Logic to render schedule
+             }, (error) => console.error("Error listening to schedule:", error));
         };
 
         // --- EVENT LISTENERS ---
@@ -511,8 +522,72 @@
             }
         });
         
+        // FIX: Added missing event listeners
         confirmAdminLogin.addEventListener('click', async () => {
-             // Admin login logic...
+            const name = adminNameInput.value.trim();
+            const password = adminPasswordInput.value.trim();
+            if (!name || !password) {
+                adminLoginError.textContent = 'Preencha todos os campos.';
+                adminLoginError.classList.remove('hidden');
+                return;
+            }
+            await fetchAdmins();
+            if (admins[name] && admins[name] === password) {
+                adminLoginModal.classList.add('hidden');
+                toggleAdminFeatures(true);
+                showMessage(`Bem-vindo, admin ${name}!`);
+                adminNameInput.value = '';
+                adminPasswordInput.value = '';
+                adminLoginError.classList.add('hidden');
+            } else {
+                adminLoginError.textContent = 'Nome de administrador ou senha inválidos.';
+                adminLoginError.classList.remove('hidden');
+            }
+        });
+        
+        cancelAdminLogin.addEventListener('click', () => {
+             adminLoginModal.classList.add('hidden');
+        });
+
+        cancelNewPost.addEventListener('click', () => {
+            newPostModal.classList.add('hidden');
+        });
+        
+        cancelEditSchedule.addEventListener('click', () => {
+            editScheduleModal.classList.add('hidden');
+        });
+
+        newPostForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newActivity = {
+                title: document.getElementById('post-title').value.trim(),
+                subject: document.getElementById('post-subject').value.trim(),
+                dueDate: document.getElementById('post-duedate').value,
+                type: document.getElementById('post-type').value,
+                isGraded: postGradedCheckbox.checked,
+                points: document.getElementById('post-points').value ? Number(document.getElementById('post-points').value) : 0,
+                timestamp: serverTimestamp()
+            };
+            if (!newActivity.title || !newActivity.subject || !newActivity.dueDate) {
+                postError.textContent = 'Por favor, preencha Título, Matéria e Data.';
+                postError.classList.remove('hidden'); return;
+            }
+            try {
+                 await addDoc(collection(db, 'public_activities'), newActivity);
+                 newPostForm.reset();
+                 pointsContainer.classList.add('hidden');
+                 newPostModal.classList.add('hidden');
+                 showMessage('Atividade postada com sucesso!');
+            } catch(error) {
+                console.error("Error adding document: ", error);
+                postError.textContent = 'Erro ao salvar. Tente novamente.';
+                postError.classList.remove('hidden');
+            }
+        });
+        
+        editScheduleForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            // Logic to save schedule...
         });
         
         closeAiTipsModal.addEventListener('click', () => aiTipsModal.classList.add('hidden'));
